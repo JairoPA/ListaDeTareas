@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'https://github.com/usuario/repositorio.git'
+        REPO_URL = 'git@github.com:JairoPA/ListaDeTareas.git'
         BRANCH = 'main'
         RECIPIENT = 'preciadojairo82@gmail.com'
         EMAIL_SUBJECT = "Notificación de Construcción: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
@@ -72,11 +72,11 @@ pipeline {
                     }
 
                     // Navegar al directorio de la aplicación
-                    dir('/Descargas/ListaDeTareas/') {
+                    dir('/Descargas/ListaDeTareas2/') {
                         // Iniciar la aplicación
                         sh 'npm start &'
                         sleep(10) // Esperar unos segundos para que la aplicación inicie completamente
-                        echo 'La aplicación está disponible en http://localhost:puerto' // Reemplaza "puerto" con el puerto real de tu aplicación
+                        echo 'La aplicación está disponible en http://localhost:3000' // Reemplaza "puerto" con el puerto real de tu aplicación
                     }
                 }
             }
