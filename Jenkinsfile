@@ -5,7 +5,7 @@ pipeline {
         REPO_URL = 'https://github.com/JairoPA/ListaDeTareas.git'
         BRANCH = 'main'
         RECIPIENT = 'preciadojairo82@gmail.com'
-        EMAIL_SUBJECT = "Notificación de Construcción: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
+        EMAIL_SUBJECT = "Notificación de Construcción:"
         EMAIL_BODY = '''<!DOCTYPE html>
         <html lang="es">
         <head>
@@ -34,78 +34,85 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                    git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+                echo 'Starting Checkout...'
+                git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+                echo 'Checkout complete.'
             }
         }
         stage('Build') {
             steps {
+                echo 'Starting Build...'
                 // Instalar dependencias
                 sh 'npm install'
-                
-                echo "jairo123" | sh 'sudo -S cp -r * /Descargas'
-                // Ejecutar pruebas y capturar salida en caso de error
+                sh 'npm test'
+                /* Intentar copiar archivos, verificando permisos y ruta
                 script {
-                    def testOutput = sh(script: 'npm test', returnStatus: true, returnStdout: true).trim()
-                    if (testOutput.contains("Error:")) {
-                        echo "Las pruebas fallaron con el siguiente error:\n${testOutput}"
-                        currentBuild.result = 'UNSTABLE'
-                        echo "if de build"
-                    } else {
-                        echo "Resultado de las pruebas:\n${testOutput}"
-                        echo "else de build"
+                    try {
+                        sh 'mkdir -p /tmp/jenkins_descargas'
+                        sh 'cp -r * /tmp/jenkins_descargas'
+                        echo 'Archivos copiados a /tmp/jenkins_descargas'
+                    } catch (Exception e) {
+                        echo 'Error al copiar archivos: ' + e.toString()
+                        currentBuild.result = 'FAILURE'
+                        error('Falló la copia de archivos.')
                     }
                 }
+
+                // Ejecutar pruebas y capturar salida en caso de error
+                script {
+                    try {
+                        def testOutput = sh(script: 'npm test', returnStatus: true, returnStdout: true).trim()
+                        if (testOutput.contains("Error:")) {
+                            echo "Las pruebas fallaron con el siguiente error:\n${testOutput}"
+                            currentBuild.result = 'UNSTABLE'
+                        } else {
+                            echo "Resultado de las pruebas:\n${testOutput}"
+                        }
+                    } catch (Exception e) {
+                        echo 'Error al ejecutar pruebas: ' + e.toString()
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+                echo 'Build stage complete.'*/
             }
         }
         stage('Deploy') {
-    steps {
-        script {
-            echo "si entro a deploy"
-            // Navegar al directorio de la aplicación
-            dir('/Descargas/') {
-                // Verificar el estado de MongoDB
-                def status = sh(script: 'which mongod', returnStatus: true)
+            steps {
+                echo 'Starting Deploy...'
+                script {
+                    // Navegar al directorio de la aplicación
+                    /*dir('/tmp/jenkins_descargas') {
+                        // Verificar el estado de MongoDB
+                        def status = sh(script: 'which mongod', returnStatus: true)
 
-                // Si MongoDB no está instalado, instalarlo
-                if (status != 0) {
-                    sh 'sudo apt-get update && sudo apt-get install -y mongodb'
-                    sh 'sudo systemctl start mongod'
-                } else {
-                    sh 'sudo systemctl start mongod'
-                    // Esperar a que MongoDB esté listo para aceptar conexiones
-                    def mongodbReady = false
-                    def retries = 0
-                    while (!mongodbReady && retries < 10) {
-                        sh 'mongo --eval "db.serverStatus()"'
-                        if (currentBuild.result == 'SUCCESS') {
-                            mongodbReady = true
+                        // Si MongoDB no está instalado, instalarlo
+                        if (status != 0) {
+                            sh 'sudo apt-get update && sudo apt-get install -y mongodb'
+                            sh 'sudo systemctl start mongod'
                         } else {
-                            echo 'MongoDB no está listo, esperando 10 segundos...'
-                            sleep(10)
-                            retries++
+                            sh 'sudo systemctl start mongod'
+                            // Esperar a que MongoDB esté listo para aceptar conexiones
+                            // Iniciar la aplicación en segundo plano
+                            sh 'npm start &'
+
+                            // Esperar a que la aplicación se inicie completamente
+                            sleep(30)
+
+                            // Verificar si la aplicación está disponible
+                            def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1', returnStatus: true)
+                            if (appStatus == 0) {
+                                echo 'La aplicación está disponible en http://localhost:3000'
+                            } else {
+                                echo 'La aplicación no se inició correctamente'
+                                currentBuild.result = 'FAILURE'
+                            }
                         }
-                    }
-                    // Iniciar la aplicación en segundo plano
-                    sh 'npm start &'
-
-                    // Esperar a que la aplicación se inicie completamente
-                    sleep(30)
-
-                    // Verificar si la aplicación está disponible
-                    def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1').trim()
-                    if (appStatus == 0) {
-                            echo 'La aplicación está disponible en http://localhost:3000'
-                    } else {
-                            echo 'La aplicación no se inició correctamente'
-                            currentBuild.result = 'FAILURE'
-                    }
-                }
+                    }*/
+                sh 'npm start'
+                echo 'https://localhost:3000'
+               }
             }
         }
-    }
-}
-
-
     }
 
     post {
@@ -120,4 +127,3 @@ pipeline {
         }
     }
 }
-
