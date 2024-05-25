@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'git@github.com:JairoPA/ListaDeTareas.git'
+        REPO_URL = 'https://github.com/JairoPA/ListaDeTareas.git'
         BRANCH = 'main'
         RECIPIENT = 'preciadojairo82@gmail.com'
         EMAIL_SUBJECT = "Notificación de Construcción: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
@@ -34,9 +34,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                sshagent(credentials: ['2']) {
                     git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
-                }
             }
         }
         stage('Build') {
