@@ -48,9 +48,11 @@ pipeline {
                     if (testOutput.contains("Error:")) {
                         echo "Las pruebas fallaron con el siguiente error:\n${testOutput}"
                         currentBuild.result = 'UNSTABLE'
+                        echo "if de build"
                     } else {
                         echo "Resultado de las pruebas:\n${testOutput}"
-                        sh 'cp -r * /Descargas/Jenkins' 
+                        sh 'cp -r * /Descargas/Jenkins'
+                        echo "else de build"
                     }
                 }
             }
@@ -58,6 +60,7 @@ pipeline {
         stage('Deploy') {
     steps {
         script {
+            echo "si entro a deploy"
             // Navegar al directorio de la aplicación
             dir('/Descargas/Jenkins/') {
                 // Verificar el estado de MongoDB
@@ -89,7 +92,7 @@ pipeline {
                     sleep(30)
 
                     // Verificar si la aplicación está disponible
-                    def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1', returnStatus: true)
+                    def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1').trim()
                     if (appStatus == 0) {
                             echo 'La aplicación está disponible en http://localhost:3000'
                     } else {
