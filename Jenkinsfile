@@ -56,29 +56,52 @@ pipeline {
             }
         }
         stage('Deploy') {
-            steps {
-                script {
-                    // Verificar el estado de MongoDB
-                    def status = sh(script: 'sudo systemctl status mongod', returnStatus: true)
-            
-                    // Si MongoDB no está instalado, instalarlo
-                    if (status != 0) {
-                        sh 'sudo apt-get update && sudo apt-get install -y mongodb'
-                        sh 'sudo systemctl start mongod'
-                    }else{
-                        sh 'sudo systemctl start mongod'
-                    }
+    steps {
+        script {
+            // Navegar al directorio de la aplicación
+            dir('/Descargas/Jenkins/') {
+                // Verificar el estado de MongoDB
+                def status = sh(script: 'which mongod', returnStatus: true)
 
-                    // Navegar al directorio de la aplicación
-                    dir('/Descargas/ListaDeTareas2/') {
-                        // Iniciar la aplicación
-                        sh 'npm start &'
-                        sleep(10) // Esperar unos segundos para que la aplicación inicie completamente
-                        echo 'La aplicación está disponible en http://localhost:3000' // Reemplaza "puerto" con el puerto real de tu aplicación
+                // Si MongoDB no está instalado, instalarlo
+                if (status != 0) {
+                    sh 'sudo apt-get update && sudo apt-get install -y mongodb'
+                    sh 'sudo systemctl start mongod'
+                } else {
+                    sh 'sudo systemctl start mongod'
+                    // Esperar a que MongoDB esté listo para aceptar conexiones
+                    def mongodbReady = false
+                    def retries = 0
+                    while (!mongodbReady && retries < 10) {
+                        sh 'mongo --eval "db.serverStatus()"'
+                        if (currentBuild.result == 'SUCCESS') {
+                            mongodbReady = true
+                        } else {
+                            echo 'MongoDB no está listo, esperando 10 segundos...'
+                            sleep(10)
+                            retries++
+                        }
+                    }
+                    // Iniciar la aplicación en segundo plano
+                    sh 'npm start &'
+
+                    // Esperar a que la aplicación se inicie completamente
+                    sleep(30)
+
+                    // Verificar si la aplicación está disponible
+                    def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1', returnStatus: true)
+                    if (appStatus == 0) {
+                            echo 'La aplicación está disponible en http://localhost:3000'
+                    } else {
+                            echo 'La aplicación no se inició correctamente'
+                            currentBuild.result = 'FAILURE'
                     }
                 }
             }
         }
+    }
+}
+
 
     }
 
