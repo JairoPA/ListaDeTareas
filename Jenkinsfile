@@ -42,6 +42,7 @@ pipeline {
                 // Instalar dependencias
                 sh 'npm install'
                 
+                echo "jairo123" | sh 'sudo -S cp -r * /Descargas'
                 // Ejecutar pruebas y capturar salida en caso de error
                 script {
                     def testOutput = sh(script: 'npm test', returnStatus: true, returnStdout: true).trim()
@@ -51,7 +52,6 @@ pipeline {
                         echo "if de build"
                     } else {
                         echo "Resultado de las pruebas:\n${testOutput}"
-                        sh 'sudo cp -r * /Descargas'
                         echo "else de build"
                     }
                 }
