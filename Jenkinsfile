@@ -59,25 +59,29 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                // Verificar el estado de MongoDB
-                def status = sh(script: 'sudo systemctl status mongod', returnStatus: true)
-        
-                // Si MongoDB no está instalado, instalarlo
-                if (status != 0) {
-                    sh 'sudo apt-get update && sudo apt-get install -y mongodb'
-                }
+                script {
+                    // Verificar el estado de MongoDB
+                    def status = sh(script: 'sudo systemctl status mongod', returnStatus: true)
+            
+                    // Si MongoDB no está instalado, instalarlo
+                    if (status != 0) {
+                        sh 'sudo apt-get update && sudo apt-get install -y mongodb'
+                        sh 'sudo systemctl start mongod'
+                    }else{
+                        sh 'sudo systemctl start mongod'
+                    }
 
-                sh 'sudo systemctl start mongod'
-
-                // Navegar al directorio de la aplicación
-                dir('/Descargas/ListaDeTareas/') {
-                    // Iniciar la aplicación
-                    sh 'npm start &'
-                    sleep(10)
-                    echo 'La aplicación está disponible en http://localhost:3000'
+                    // Navegar al directorio de la aplicación
+                    dir('/Descargas/ListaDeTareas/') {
+                        // Iniciar la aplicación
+                        sh 'npm start &'
+                        sleep(10) // Esperar unos segundos para que la aplicación inicie completamente
+                        echo 'La aplicación está disponible en http://localhost:puerto' // Reemplaza "puerto" con el puerto real de tu aplicación
+                    }
                 }
             }
         }
+
     }
 
     post {
