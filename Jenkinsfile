@@ -51,7 +51,7 @@ pipeline {
                         echo "if de build"
                     } else {
                         echo "Resultado de las pruebas:\n${testOutput}"
-                        sh 'cp -r * /Descargas/Jenkins'
+                        sh 'sudo cp -r * /Descargas'
                         echo "else de build"
                     }
                 }
@@ -62,7 +62,7 @@ pipeline {
         script {
             echo "si entro a deploy"
             // Navegar al directorio de la aplicación
-            dir('/Descargas/Jenkins/') {
+            dir('/Descargas/') {
                 // Verificar el estado de MongoDB
                 def status = sh(script: 'which mongod', returnStatus: true)
 
