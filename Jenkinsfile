@@ -31,7 +31,24 @@
             </html>'''
         }
 
-        stage('Deploy') {
+        stages {
+            stage('Checkout') {
+                steps {
+                    echo 'Starting Checkout...'
+                    git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+                    echo 'Checkout complete.'
+                }
+            }
+            stage('Build') {
+                steps {
+                    echo 'Starting Build...'
+                    // Instalar dependencias
+                    sh 'npm install'
+                    sh 'npm test'
+                }
+            }
+
+            stage('Deploy') {
     steps {
         echo 'Starting Deploy...'
         script {
@@ -50,6 +67,7 @@
         echo 'Deploy stage complete.'
     }
 }
+        }
 
     post {
         always {
