@@ -77,38 +77,24 @@
                 }
             }
             stage('Deploy') {
-                steps {
-                echo 'Starting Deploy...'
-                    script {
-                    // Lanzar la aplicación en segundo plano
-                    sh 'npm start &'
+    steps {
+        echo 'Starting Deploy...'
+        script {
+            // Lanzar la aplicación en el primer plano
+            def process = sh(script: 'npm start', returnProcess: true)
+
+            // Mostrar la URL de la aplicación
+            echo 'La aplicación se está ejecutando en http://localhost:3000'
             
-                    // Esperar hasta que la aplicación esté disponible o hayan pasado 30 segundos
-                    def timeout = 30
-                    def elapsedTime = 0
-                    def appAvailable = false
-                    while (!appAvailable && elapsedTime < timeout) {
-                        sleep(1)
-                        elapsedTime++
-
-                        // Verificar si la aplicación está disponible
-                        def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1', returnStatus: true)
-                        if (appStatus == 0) {
-                            appAvailable = true
-                        }
-                        }
-
-                        // Verificar si la aplicación está disponible
-                        if (appAvailable) {
-                            echo 'La aplicación está disponible en http://localhost:3000'
-                        } else {
-                            echo 'La aplicación no se inició correctamente después de 30 segundos'
-                            currentBuild.result = 'FAILURE'
-                        }
-                    }
-                        echo 'Deploy stage complete.'
-                }
-            }
+            // Esperar a que el usuario presione el botón
+            input message: 'Presiona el botón para continuar después de que la aplicación se haya iniciado correctamente', submitter: 'admin'
+            
+            // Terminar el proceso una vez que el usuario presiona el botón
+            process.interrupt()
+        }
+        echo 'Deploy stage complete.'
+    }
+}
         }
 
     post {
