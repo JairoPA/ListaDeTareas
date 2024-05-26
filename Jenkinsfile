@@ -77,41 +77,39 @@
                 }
             }
             stage('Deploy') {
-                steps {
-                    echo 'Starting Deploy...'
-                    script {
-                        // Navegar al directorio de la aplicación
-                        /*dir('/tmp/jenkins_descargas') {
-                            // Verificar el estado de MongoDB
-                            def status = sh(script: 'which mongod', returnStatus: true)
-
-                            // Si MongoDB no está instalado, instalarlo
-                            if (status != 0) {
-                                sh 'sudo apt-get update && sudo apt-get install -y mongodb'
-                                sh 'sudo systemctl start mongod'
-                            } else {
-                                sh 'sudo systemctl start mongod'
-                                // Esperar a que MongoDB esté listo para aceptar conexiones
-                                // Iniciar la aplicación en segundo plano
-                                sh 'npm start &'
-
-                                // Esperar a que la aplicación se inicie completamente
-                                sleep(30)
-
-                                // Verificar si la aplicación está disponible
-                                def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1', returnStatus: true)
-                                if (appStatus == 0) {
-                                    echo 'La aplicación está disponible en http://localhost:3000'
-                                } else {
-                                    echo 'La aplicación no se inició correctamente'
-                                    currentBuild.result = 'FAILURE'
-                                }
-                            }
-                        }*/
-                    sh 'npm start'
-                    }
+    steps {
+        echo 'Starting Deploy...'
+        script {
+            // Lanzar la aplicación en segundo plano
+            sh 'npm start &'
+            
+            // Esperar hasta que la aplicación esté disponible o hayan pasado 30 segundos
+            def timeout = 30
+            def elapsedTime = 0
+            def appAvailable = false
+            while (!appAvailable && elapsedTime < timeout) {
+                sleep(1)
+                elapsedTime++
+                
+                // Verificar si la aplicación está disponible
+                def appStatus = sh(script: 'curl -IsS http://localhost:3000 | head -n 1', returnStatus: true)
+                if (appStatus == 0) {
+                    appAvailable = true
                 }
             }
+            
+            // Verificar si la aplicación está disponible
+            if (appAvailable) {
+                echo 'La aplicación está disponible en http://localhost:3000'
+            } else {
+                echo 'La aplicación no se inició correctamente después de 30 segundos'
+                currentBuild.result = 'FAILURE'
+            }
+        }
+        echo 'Deploy stage complete.'
+    }
+}
+
         }
 
         post {
