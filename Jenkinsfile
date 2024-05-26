@@ -56,7 +56,7 @@
                     sh 'nohup npm start &> app.log &'
                     
                     // Mostrar la URL de la aplicación
-                    echo 'La aplicación se está ejecutando en http://localhost:3000'
+                    echo 'La aplicación se está ejecutando en <a href="http://localhost:3000" target="_blank">http://localhost:3000</a>'
                     
                     // Esperar a que el usuario presione el botón
                     input message: 'Presiona el botón para continuar después de que la aplicación se haya iniciado correctamente', submitter: 'admin'
