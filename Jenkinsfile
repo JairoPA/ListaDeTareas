@@ -52,18 +52,18 @@
     steps {
         echo 'Starting Deploy...'
         script {
-            // Lanzar la aplicación en el primer plano
-            def process = sh(script: 'npm start', returnProcess: true)
-
-            // Mostrar la URL de la aplicación
-            echo 'La aplicación se está ejecutando en http://localhost:3000'
-            
-            // Esperar a que el usuario presione el botón
-            input message: 'Presiona el botón para continuar después de que la aplicación se haya iniciado correctamente', submitter: 'admin'
-            
-            // Terminar el proceso una vez que el usuario presiona el botón
-            process.interrupt()
-        }
+                    // Lanzar la aplicación en segundo plano
+                    sh 'nohup npm start &> app.log &'
+                    
+                    // Mostrar la URL de la aplicación
+                    echo 'La aplicación se está ejecutando en http://localhost:3000'
+                    
+                    // Esperar a que el usuario presione el botón
+                    input message: 'Presiona el botón para continuar después de que la aplicación se haya iniciado correctamente', submitter: 'admin'
+                    
+                    // Detener el proceso
+                    sh 'pkill -f "node server.js"'
+                }
         echo 'Deploy stage complete.'
     }
 }
