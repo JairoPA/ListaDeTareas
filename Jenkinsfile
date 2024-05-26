@@ -108,7 +108,7 @@
                                 }
                             }
                         }*/
-                    sh 'npm start &'
+                    sh 'npm start'
                     }
                 }
             }
