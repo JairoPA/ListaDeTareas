@@ -45,45 +45,16 @@
                     // Instalar dependencias
                     sh 'npm install'
                     sh 'npm test'
-                    /* Intentar copiar archivos, verificando permisos y ruta
-                    script {
-                        try {
-                            sh 'mkdir -p /tmp/jenkins_descargas'
-                            sh 'cp -r * /tmp/jenkins_descargas'
-                            echo 'Archivos copiados a /tmp/jenkins_descargas'
-                        } catch (Exception e) {
-                            echo 'Error al copiar archivos: ' + e.toString()
-                            currentBuild.result = 'FAILURE'
-                            error('Falló la copia de archivos.')
-                        }
-                    }
-
-                    // Ejecutar pruebas y capturar salida en caso de error
-                    script {
-                        try {
-                            def testOutput = sh(script: 'npm test', returnStatus: true, returnStdout: true).trim()
-                            if (testOutput.contains("Error:")) {
-                                echo "Las pruebas fallaron con el siguiente error:\n${testOutput}"
-                                currentBuild.result = 'UNSTABLE'
-                            } else {
-                                echo "Resultado de las pruebas:\n${testOutput}"
-                            }
-                        } catch (Exception e) {
-                            echo 'Error al ejecutar pruebas: ' + e.toString()
-                            currentBuild.result = 'FAILURE'
-                        }
-                    }
-                    echo 'Build stage complete.'*/
                 }
             }
+
             stage('Deploy') {
-    steps {
-        echo 'Starting Deploy...'
-        script {
-        }
-        echo 'Deploy stage complete.'
-    }
-}
+                steps {
+                    echo 'Starting Deploy...'
+                        sh 'npm start'
+                    echo 'Deploy stage complete.'
+                }           
+            }
         }
 
     post {
