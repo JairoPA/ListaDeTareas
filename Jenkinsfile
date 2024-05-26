@@ -109,8 +109,7 @@
                             }
                         }*/
                     sh 'npm start &'
-                    echo 'https://localhost:3000'
-                }
+                    }
                 }
             }
         }
