@@ -45,6 +45,7 @@
                     // Instalar dependencias
                     sh 'npm install'
                     sh 'npm test'
+                    sh 'systemctl start mongod'
                 }
             }
 
