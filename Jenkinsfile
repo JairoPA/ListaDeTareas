@@ -68,40 +68,40 @@ pipeline {
             echo "Pipeline completed"
         }
     }
+}
 
-    def sendEmail(String status) {
-        def emailBody = """
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Correo de Notificación</title>
-            </head>
-            <body>
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #333;">Notificación de Construcción</h2>
-                    <p>Hola,</p>
-                    <p>Este correo es una notificación de construcción generada automáticamente por Jenkins.</p>
-                    <p>Detalles de la construcción:</p>
-                    <ul>
-                        <li>Nombre del Proyecto: Lista de tareas</li>
-                        <li>Número de Construcción: ${env.BUILD_NUMBER}</li>
-                        <li>Estado de la Construcción: ${status}</li>
-                        <li>Para más información, visita: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
-                    </ul>
-                    <p>¡Gracias!</p>
-                </div>
-            </body>
-            </html>
-        """
-        emailext (
-            subject: "${EMAIL_SUBJECT} ${status}",
-            body: emailBody,
-            mimeType: 'text/html',
-            to: "${RECIPIENT}",
-            replyTo: 'tareadejenkins@gmail.com',
-            from: 'tareadejenkins.com'
-        )
-    }
+def sendEmail(String status) {
+    def emailBody = """
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Correo de Notificación</title>
+        </head>
+        <body>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #333;">Notificación de Construcción</h2>
+                <p>Hola,</p>
+                <p>Este correo es una notificación de construcción generada automáticamente por Jenkins.</p>
+                <p>Detalles de la construcción:</p>
+                <ul>
+                    <li>Nombre del Proyecto: Lista de tareas</li>
+                    <li>Número de Construcción: ${env.BUILD_NUMBER}</li>
+                    <li>Estado de la Construcción: ${status}</li>
+                    <li>Para más información, visita: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
+                </ul>
+                <p>¡Gracias!</p>
+            </div>
+        </body>
+        </html>
+    """
+    emailext (
+        subject: "${EMAIL_SUBJECT} ${status}",
+        body: emailBody,
+        mimeType: 'text/html',
+        to: "${RECIPIENT}",
+        replyTo: 'tareadejenkins@gmail.com',
+        from: 'tareadejenkins.com'
+    )
 }
